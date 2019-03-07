@@ -55,8 +55,10 @@
             this.MessageQueue.FormattingEnabled = true;
             this.MessageQueue.Location = new System.Drawing.Point(3, 55);
             this.MessageQueue.Name = "MessageQueue";
+            this.MessageQueue.ScrollAlwaysVisible = true;
             this.MessageQueue.Size = new System.Drawing.Size(1000, 394);
             this.MessageQueue.TabIndex = 0;
+            this.MessageQueue.SelectedIndexChanged += new System.EventHandler(this.MessageQueue_SelectedIndexChanged);
             this.MessageQueue.SelectedValueChanged += new System.EventHandler(this.MessageQueue_SelectedValueChanged);
             // 
             // MessageInput
