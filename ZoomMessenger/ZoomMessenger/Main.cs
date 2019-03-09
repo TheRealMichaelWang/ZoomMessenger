@@ -12,6 +12,7 @@ namespace ZoomMessenger
     public partial class Main : Form
     {
         public Messenger messenger;
+        public TalkNameStorage talkNameStorage;
         public string currenttalk = "";
         public string name = Environment.UserName;
 
@@ -19,6 +20,7 @@ namespace ZoomMessenger
         {
             InitializeComponent();
             messenger = new Messenger();
+            talkNameStorage = new TalkNameStorage();
             FormBorderStyle = FormBorderStyle.FixedDialog;
         }
 
@@ -71,23 +73,26 @@ namespace ZoomMessenger
 
         private void JoinTalkButton_Click(object sender, EventArgs e)
         {
-            Prompt prompt = new Prompt("Enter talk name", currenttalk);
+            Prompt prompt = new Prompt("Enter talk name", talkNameStorage.SelectTalk());
             if (!string.IsNullOrEmpty(prompt.output))
-
+            {
                 if (prompt.output == "general forum")
                 {
                     MessageBox.Show("Please do not use inappropriate language or say bad things because this the general forum. Everyone can view it and it cannot be cleared", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
-            MessageBox.Show("We are joining the talk. This may take a little while.", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            if (messenger.talkExists(prompt.output))
-            {
-                MessageBox.Show("talk joined", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                currenttalk = prompt.output;
-                RefreshMessageQueue();
-            }
-            else
-            {
-                MessageBox.Show("That talk doesn't exist. The talk may have been ended.", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("We are joining the talk. This may take a little while.", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (messenger.talkExists(prompt.output))
+                {
+                    MessageBox.Show("talk joined", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    currenttalk = prompt.output;
+                    talkNameStorage.AddTalk(currenttalk);
+                    RefreshMessageQueue();
+                }
+                else
+                {
+                    MessageBox.Show("That talk doesn't exist. The talk may have been ended.", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    talkNameStorage.DelTalk(prompt.output);
+                }
             }
         }
 
@@ -114,10 +119,12 @@ namespace ZoomMessenger
                     messenger.newTalk(prompt.output);
                     currenttalk = prompt.output;
                     RefreshMessageQueue();
+                    talkNameStorage.AddTalk(currenttalk);
                 }
                 else
                 {
                     MessageBox.Show("That talk already exists", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    talkNameStorage.DelTalk(prompt.output);
                 }
             }
         }
@@ -129,18 +136,19 @@ namespace ZoomMessenger
                 MessageBox.Show("You cannot end this talk. This is the general forum, and cannot be ended.", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 return;
             }
-            if (MessageBox.Show("If you end this talk, it will no longer be joinable.", "Are you sure you want to end this talk?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (!string.IsNullOrEmpty(currenttalk))
             {
-                if (!string.IsNullOrEmpty(currenttalk))
+                if (MessageBox.Show("If you end this talk, it will no longer be joinable.", "Are you sure you want to end this talk?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                 {
                     messenger.endTalk(currenttalk);
+                    talkNameStorage.DelTalk(currenttalk);
                     currenttalk = "";
                     MessageQueue.Items.Clear();
                 }
-                else
-                {
-                    MessageBox.Show("Please join a talk", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+            }
+            else
+            {
+                MessageBox.Show("Please join a talk", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -184,6 +192,11 @@ namespace ZoomMessenger
         {
             if (!string.IsNullOrEmpty(currenttalk))
             {
+                if(currenttalk == "general forum")
+                {
+                    MessageBox.Show("You can't clear this forum", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 messenger.clearMessages(currenttalk);
                 RefreshMessageQueue();
             }
@@ -222,9 +235,9 @@ namespace ZoomMessenger
             MessageBox.Show(toshow, "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void MessageQueue_SelectedIndexChanged(object sender, EventArgs e)
+        private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
-
+            talkNameStorage.SaveTalks();
         }
     }
 }

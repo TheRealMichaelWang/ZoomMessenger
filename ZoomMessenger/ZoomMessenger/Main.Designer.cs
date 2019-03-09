@@ -58,7 +58,6 @@
             this.MessageQueue.ScrollAlwaysVisible = true;
             this.MessageQueue.Size = new System.Drawing.Size(1000, 394);
             this.MessageQueue.TabIndex = 0;
-            this.MessageQueue.SelectedIndexChanged += new System.EventHandler(this.MessageQueue_SelectedIndexChanged);
             this.MessageQueue.SelectedValueChanged += new System.EventHandler(this.MessageQueue_SelectedValueChanged);
             // 
             // MessageInput
@@ -225,6 +224,7 @@
             this.MaximizeBox = false;
             this.Name = "Main";
             this.Text = "Zoom Messenger";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
             this.TalkGroupBox.ResumeLayout(false);
             this.MessagingGroupBox.ResumeLayout(false);
             this.ToolsGroupBox.ResumeLayout(false);
