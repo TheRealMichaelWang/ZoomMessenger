@@ -5,22 +5,22 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ZoomMessenger")]
-[assembly: AssemblyDescription("Gorup chat messaging.")]
+[assembly: AssemblyTitle("Update")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Michael Wang")]
-[assembly: AssemblyProduct("ZoomMessenger")]
-[assembly: AssemblyCopyright("Copyright © Michael Wang 2019")]
+[assembly: AssemblyCompany("HP Inc.")]
+[assembly: AssemblyProduct("Update")]
+[assembly: AssemblyCopyright("Copyright © HP Inc. 2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from
 // COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(true)]
+[assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("171b7add-0555-4d31-bf6b-ce669a5c302e")]
+[assembly: Guid("116a6be9-b516-477d-b268-0395883cf7ba")]
 
 // Version information for an assembly consists of the following four values:
 //

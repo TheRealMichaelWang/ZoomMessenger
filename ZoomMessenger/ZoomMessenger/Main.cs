@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -15,6 +17,7 @@ namespace ZoomMessenger
         public TalkNameStorage talkNameStorage;
         public string currenttalk = "";
         public string name = Environment.UserName;
+        public string[] messages = null;
 
         public Main()
         {
@@ -28,15 +31,47 @@ namespace ZoomMessenger
         {
             if (!string.IsNullOrEmpty(currenttalk))
             {
-                MessageBox.Show("We are refreshing. This may take a little while.", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 MessageQueue.Items.Clear();
                 string[] messages = messenger.getMessages(currenttalk);
                 foreach (string message in messages)
                 {
-                    MessageQueue.Items.Add(message);
+                    if(message.Contains("‰"))
+                    {
+                        try
+                        {
+                            ComplexMessage cm = ComplexMessage.ParseDataString(message);
+                            if (cm.to == name || cm.from == name)
+                            {
+                                MessageQueue.Items.Add("↓↓↓To read this complex message below, use the read complex message button↓↓↓");
+                                MessageQueue.Items.Add(message);
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    else if(message.Contains("startapp>"))
+                    {
+                        MessageQueue.Items.Add("↓↓↓Click the message below to start it↓↓↓");
+                        MessageQueue.Items.Add(message);
+                    }
+                    else
+                    {
+                        MessageQueue.Items.Add(message);
+                    }
                 }
                 MessageQueue.TopIndex = MessageQueue.Items.Count - 1;
-                MessageBox.Show("Refresh completed.", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if(this.messages != null)
+                {
+                    if(this.messages != messages)
+                    {
+                        RefreshTimer.Enabled = false;
+                        MessageBox.Show("Changes to the talk have been made.","Zoom Messenger",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+                        RefreshTimer.Enabled = true;
+                    }
+                }
+                this.messages = messages;
             }
         }
 
@@ -47,7 +82,14 @@ namespace ZoomMessenger
                 if (!string.IsNullOrEmpty(currenttalk))
                 {
                     MessageBox.Show("We are sending your message. This may take a little while.", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    messenger.sendMessage(currenttalk, name + ": " + MessageInput.Text);
+                    if (!MessageInput.Text.Contains('‰'))
+                    {
+                        messenger.sendMessage(currenttalk, name + ": " + MessageInput.Text);
+                    }
+                    else
+                    {
+                        messenger.sendMessage(currenttalk, MessageInput.Text);
+                    }
                     MessageInput.Text = "";
                     MessageBox.Show("Message sent", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     RefreshMessageQueue();
@@ -57,9 +99,9 @@ namespace ZoomMessenger
                     MessageBox.Show("Please join a talk", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
-            catch (Exception exception)
+            catch
             {
-                MessageBox.Show(exception.Message, "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("That talk doesn't exist. The talk may have been ended.", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -155,6 +197,10 @@ namespace ZoomMessenger
         private void RefreshButton_Click(object sender, EventArgs e)
         {
             RefreshMessageQueue();
+            if(string.IsNullOrEmpty(currenttalk))
+            {
+                MessageBox.Show("Please join a talk", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void RefreshTimer_Tick(object sender, EventArgs e)
@@ -168,8 +214,35 @@ namespace ZoomMessenger
             {
                 if (MessageQueue.SelectedItem != null)
                 {
-                    MessageInput.Text = (string)MessageQueue.SelectedItem;
+                    string selected = (string)MessageQueue.SelectedItem;
+                    if (selected == "↓↓↓To read this complex message below, use the read complex message button↓↓↓" || selected == "↓↓↓Click the message below to start it↓↓↓")
+                    {
+                        MessageBox.Show("That's a label. Not a message", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        MessageQueue.SelectedItem = null;
+                        return;
+                    }
+                    MessageInput.Text = selected;
                     MessageInput.Text = MessageInput.Text.Split(":".ToCharArray())[1];
+                    string[] args = MessageInput.Text.Split(' ');
+                    List<string> usableargs = new List<string>();
+                    foreach(string item in args)
+                    {
+                        if(!string.IsNullOrEmpty(item))
+                        {
+                            usableargs.Add(item);
+                        }
+                    }
+                    if(usableargs[0] == "startapp>")
+                    {
+                        try
+                        {
+                            Process.Start(usableargs[1], usableargs[2]);
+                        }
+                        catch
+                        {
+                            MessageBox.Show("Unable to start that process", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
                     MessageQueue.SelectedItem = null;
                 }
             }
@@ -190,19 +263,26 @@ namespace ZoomMessenger
 
         private void ClearMessages_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(currenttalk))
+            try
             {
-                if(currenttalk == "general forum")
+                if (!string.IsNullOrEmpty(currenttalk))
                 {
-                    MessageBox.Show("You can't clear this forum", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    if (currenttalk == "general forum")
+                    {
+                        MessageBox.Show("You can't clear this forum", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    messenger.clearMessages(currenttalk);
+                    RefreshMessageQueue();
                 }
-                messenger.clearMessages(currenttalk);
-                RefreshMessageQueue();
+                else
+                {
+                    MessageBox.Show("Please join a talk", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
-            else
+            catch
             {
-                MessageBox.Show("Please join a talk", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("That talk doesn't exist. The talk may have been ended.", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -222,22 +302,63 @@ namespace ZoomMessenger
 
         private void GetTalkInfoButton_Click(object sender, EventArgs e)
         {
-            string toshow = "Talkname: ";
+            string toshow = "Zoom Messenger\n(C) Michael Wang 2019\n\nTalkname: ";
             if (!string.IsNullOrEmpty(currenttalk))
             {
                 toshow = toshow + currenttalk + "\nName: ";
-                toshow = toshow + name + "\nMessage Count: " + MessageQueue.Items.Count;
+                toshow = toshow + name + "\nMessage Count: " + messages.Length + "\nSaved: ";
+                if(talkNameStorage.talks.Contains(currenttalk))
+                {
+                    toshow = toshow + "Yes";
+                }
+                else
+                {
+                    toshow = toshow + "No";
+                }
             }
             else
             {
                 toshow = toshow + "No talk joined\nName: " + name;
             }
+            toshow = toshow + "\nAutoRefresh: "+RefreshTimer.Enabled;
+            toshow = toshow + "\nSaved Talk(s): " + talkNameStorage.talks.Count.ToString();
             MessageBox.Show(toshow, "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
             talkNameStorage.SaveTalks();
+        }
+
+        private void ReadComplexMessageButton_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(MessageInput.Text))
+            {
+                RefreshTimer.Enabled = false;
+                string temp = MessageInput.Text;
+                try
+                {
+                    ComplexMessage message = ComplexMessage.ParseDataString(temp);
+                    ComplexMessageViewer viewer = new ComplexMessageViewer(message);
+                }
+                catch
+                {
+                    MessageBox.Show("That's not a complex message.", "Zoom Messenger", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                MessageQueue.SelectedItem = null;
+                RefreshTimer.Enabled = true;
+            }
+        }
+
+        private void WriteComplexMessageButton_Click(object sender, EventArgs e)
+        {
+            RefreshTimer.Enabled = false;
+            ComplexMessageComposer composer = new ComplexMessageComposer(name);
+            if(!composer.canceled)
+            {
+                MessageInput.Text = composer.output.ToDataString();
+            }
+            RefreshTimer.Enabled = true;
         }
     }
 }

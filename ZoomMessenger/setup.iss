@@ -23,7 +23,7 @@ DefaultDirName={pf}\{#MyAppName}
 DisableDirPage=yes
 DisableProgramGroupPage=yes
 OutputDir=C:\Users\Michael Wang\source\repos\ZoomMessenger
-OutputBaseFilename=setup
+OutputBaseFilename=ZoomMessengerSetup
 Compression=lzma
 SolidCompression=yes
 
@@ -34,7 +34,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\Michael Wang\source\repos\ZoomMessenger\ZoomMessenger\bin\Debug\ZoomMessenger.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Michael Wang\Documents\Visual Studio 2017\Projects\ZoomMessenger\ZoomMessenger\bin\Debug\ZoomMessenger.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Michael Wang\Documents\Visual Studio 2017\Projects\ZoomMessenger\ZoomMessenger\bin\Debug\Update.exe"; DestDir: "{app}"; Flags: ignoreversion
+
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

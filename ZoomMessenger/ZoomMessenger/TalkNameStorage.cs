@@ -17,6 +17,7 @@ namespace ZoomMessenger
             if(!File.Exists(path))
             {
                 File.Create(path).Close();
+                File.WriteAllText(path, "general forum");
             }
             talks = File.ReadAllLines(path).ToList();
         }
@@ -28,9 +29,12 @@ namespace ZoomMessenger
 
         public void AddTalk(string talkname)
         {
-            if(MessageBox.Show("Would you like to save this talk?","Zoom Messenger",MessageBoxButtons.YesNo,MessageBoxIcon.Question) == DialogResult.Yes)
+            if (!talks.Contains(talkname))
             {
-                talks.Add(talkname);
+                if (MessageBox.Show("Would you like to save this talk?", "Zoom Messenger", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    talks.Add(talkname);
+                }
             }
         }
 

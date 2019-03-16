@@ -1,0 +1,6 @@
+C:\Users\Michael Wang\Documents\Visual Studio 2017\Projects\ZoomMessenger\ZoomMessenger\bin\Debug\Update.exe
+C:\Users\Michael Wang\Documents\Visual Studio 2017\Projects\ZoomMessenger\ZoomMessenger\bin\Debug\Update.pdb
+C:\Users\Michael Wang\Documents\Visual Studio 2017\Projects\ZoomMessenger\Update\obj\Debug\Update.csprojAssemblyReference.cache
+C:\Users\Michael Wang\Documents\Visual Studio 2017\Projects\ZoomMessenger\Update\obj\Debug\Update.csproj.CoreCompileInputs.cache
+C:\Users\Michael Wang\Documents\Visual Studio 2017\Projects\ZoomMessenger\Update\obj\Debug\Update.exe
+C:\Users\Michael Wang\Documents\Visual Studio 2017\Projects\ZoomMessenger\Update\obj\Debug\Update.pdb

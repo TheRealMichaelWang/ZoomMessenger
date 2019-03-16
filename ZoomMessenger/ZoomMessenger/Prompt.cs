@@ -16,6 +16,7 @@ namespace ZoomMessenger
         public Prompt(string title,string defaultinput)
         {
             InitializeComponent();
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.Text = title;
             this.Input.Text = defaultinput;
             this.ShowDialog();
